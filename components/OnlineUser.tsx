@@ -1,25 +1,38 @@
 "use client";
 
 import { useChatStore } from "@/store/chatStore";
+import { Profile } from "@/types/profile";
 
-export default function OnlineUsers() {
-  const { onlineUsers, selectUserForDM, currentUser } = useChatStore();
-  console.log("Online users :" + onlineUsers.length);
+export default function OnlineUsers({
+  currentUser,
+  onlineUsers,
+}: {
+  currentUser: Profile;
+  onlineUsers: string[];
+}) {
+  const { selectUserForDM } = useChatStore();
+
   return (
-    <div className="p-4 border-r w-64">
-      <h2 className="font-bold mb-2">Online Users</h2>
+    <div className="border rounded p-4 bg-white h-full">
+      <h2 className="font-semibold mb-2">Online Users</h2>
 
-      {onlineUsers
-        .filter((u) => u.id !== currentUser?.id)
-        .map((user) => (
+      {onlineUsers.length === 0 && (
+        <p className="text-sm text-gray-500">No users online</p>
+      )}
+
+      {onlineUsers.map((id) => {
+        if (id === currentUser?.id) return null; // Don't show self
+
+        return (
           <button
-            key={user.id}
-            className="w-full p-2 text-left hover:bg-gray-100 rounded"
-            onClick={() => selectUserForDM(user)}
+            key={id}
+            onClick={() => selectUserForDM(id, currentUser.id)}
+            className="block w-full text-left py-2 px-2 hover:bg-gray-100 rounded"
           >
-            {user.username}
+            User: {id}
           </button>
-        ))}
+        );
+      })}
     </div>
   );
 }

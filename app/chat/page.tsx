@@ -1,115 +1,63 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
-import { useChatStore } from "@/store/chatStore";
-
 import ChatBox from "@/components/ChatBox";
-import ChatInput from "@/components/ChatInput";
 import OnlineUsers from "@/components/OnlineUser";
-import { DMMessage } from "@/types/dm";
-import { Message } from "@/types/message";
+import { Profile } from "@/types/profile";
 
 export default function ChatPage() {
-  const {
-    setCurrentUser,
-    setOnlineUsers,
-    messages,
-    addMessage,
-    activeDM,
-    dmMessages,
-  } = useChatStore();
+  const [currentUser, setCurrentUser] = useState<Profile>();
+  const [onlineUsers, setOnlineUsers] = useState<string[]>([]);
 
-  // Load User + Online Users + Messages
+  // 1. Load authenticated user
   useEffect(() => {
-    console.log("Zustand State:", useChatStore.getState());
-    console.log("activeDM:", activeDM);
-
-    let presenceChannel: ReturnType<typeof supabase.channel>;
-    let messageChannel: ReturnType<typeof supabase.channel>;
-
-    const load = async () => {
-      // 1️⃣ Fetch current user
-      const { data: userData } = await supabase.auth.getUser();
-      if (userData.user) {
-        setCurrentUser({
-          id: userData.user.id,
-          username: userData.user.email!,
-          avatar_url: "",
-          updated_at: "",
-        });
-      }
-
-      // 2️⃣ Presence (Online users)
-      presenceChannel = supabase.channel("online-users", {
-        config: {
-          presence: {
-            key: userData.user?.id ?? "unknown",
-          },
-        },
-      });
-
-      presenceChannel
-        .on("presence", { event: "sync" }, () => {
-          const state = presenceChannel.presenceState();
-
-          const users = Object.keys(state).map((id) => ({
-            id,
-            username: state[id][0].username,
-            avatar_url: "",
-            updated_at: "",
-          }));
-
-          setOnlineUsers(users);
-        })
-        .subscribe();
-
-      // Announce our presence
-      presenceChannel.track({
-        username: userData.user?.email,
-        user_id: userData.user?.id,
-      });
-
-      // 3️⃣ Load group chat messages
-      const { data } = await supabase
-        .from("messages")
-        .select("*")
-        .order("created_at");
-
-      data?.forEach((msg) => addMessage(msg));
-
-      // 4️⃣ Realtime group messages
-      messageChannel = supabase
-        .channel("messages")
-        .on(
-          "postgres_changes",
-          { event: "INSERT", schema: "public", table: "messages" },
-          (payload) => {
-            console.log("Realtime Event:", payload);
-            addMessage(payload.new as Message);
-          }
-        )
-        .subscribe();
+    const loadUser = async () => {
+      const { data } = await supabase.auth.getUser();
+      if (data?.user) setCurrentUser(data.user);
     };
 
-    load();
-
-    return () => {
-      if (presenceChannel) supabase.removeChannel(presenceChannel);
-      if (messageChannel) supabase.removeChannel(messageChannel);
-    };
+    loadUser();
   }, []);
 
+  // 2. Presence tracking (online users)
+  useEffect(() => {
+    if (!currentUser) return;
+
+    const channel = supabase.channel("online-users", {
+      config: { presence: { key: currentUser.id } },
+    });
+
+    channel
+      .on("presence", { event: "sync" }, () => {
+        const state = channel.presenceState();
+        const users = Object.keys(state);
+        setOnlineUsers(users);
+      })
+      .subscribe(async (status) => {
+        if (status === "SUBSCRIBED") {
+          await channel.track({ online: true });
+        }
+      });
+
+    return () => {
+      channel.unsubscribe();
+    };
+  }, [currentUser]);
+
+  if (!currentUser)
+    return <div className="p-6 text-center">Loading user...</div>;
+
   return (
-    <div className="h-screen grid grid-cols-[250px_1fr] bg-gray-100">
-      <div className="border-r bg-white">
-        <OnlineUsers />
+    <div className="grid grid-cols-4 h-screen gap-4 p-4 bg-gray-100">
+      {/* LEFT — Online Users */}
+      <div className="col-span-1">
+        <OnlineUsers currentUser={currentUser} onlineUsers={onlineUsers} />
       </div>
 
-      <div className="flex flex-col">
-        <ChatBox />
-
-        <ChatInput />
+      {/* RIGHT — ChatBox */}
+      <div className="col-span-3">
+        <ChatBox currentUser={currentUser} />
       </div>
     </div>
   );

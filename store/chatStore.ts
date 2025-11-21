@@ -1,72 +1,105 @@
 import { create } from "zustand";
-import { ChatStore } from "@/types/chatstore";
-import { getOrCreateDM } from "@/lib/dm";
 import { supabase } from "@/lib/supabaseClient";
-import { DMMessage } from "@/types/dm";
+
+type DMRoom = {
+  id: number;
+  user_a: string;
+  user_b: string;
+};
+
+type DMMessage = {
+  id: number;
+  dm_id: number;
+  sender: string;
+  content: string;
+  created_at: string;
+};
+
+type ChatStore = {
+  activeDM: DMRoom | null;
+  dmMessages: DMMessage[];
+
+  selectUserForDM: (targetId: string, currentUserId: string) => Promise<void>;
+  sendDM: (content: string, senderId: string) => Promise<void>;
+  addDMMessage: (msg: DMMessage) => void;
+};
 
 export const useChatStore = create<ChatStore>((set, get) => ({
-  // ===== STATE =====
-  currentUser: null,
-
-  onlineUsers: [],
-  messages: [],
+  activeDM: null,
   dmMessages: [],
 
-  selectedUser: null,
-  activeDM: null,
+  // SELECT OR CREATE DM ROOM
+  selectUserForDM: async (targetId, currentUserId) => {
+    if (!currentUserId) return;
 
-  // ===== ACTIONS =====
-  setCurrentUser: (user) => set({ currentUser: user }),
+    // 1. check existing
+    const { data: existing } = await supabase
+      .from("dms")
+      .select("*")
+      .or(
+        `and(user_a.eq.${currentUserId},user_b.eq.${targetId}),and(user_a.eq.${targetId},user_b.eq.${currentUserId})`
+      )
+      .maybeSingle();
 
-  setOnlineUsers: (users) => set({ onlineUsers: users }),
+    let dm = existing;
 
-  addMessage: (msg) =>
-    set((state) => ({
-      messages: [...state.messages, msg],
-    })),
+    // 2. create if not found
+    if (!dm) {
+      const { data: created } = await supabase
+        .from("dms")
+        .insert({
+          user_a: currentUserId,
+          user_b: targetId,
+        })
+        .select("*")
+        .single();
 
-  selectUserForDM: async (user) => {
-    const me = get().currentUser;
-    if (!me) return;
+      dm = created;
+    }
 
-    const room = await getOrCreateDM(me.id, user.id);
+    set({ activeDM: dm, dmMessages: [] });
 
-    set({
-      selectedUser: user,
-      activeDM: room,
-    });
-
-    await get().loadDMMessages(room.id);
-    get().subscribeDM(room.id);
-  },
-
-  loadDMMessages: async (dm_id) => {
-    const { data } = await supabase
+    // 3. load messages
+    const { data: msgs } = await supabase
       .from("dm_messages")
       .select("*")
-      .eq("dm_id", dm_id)
+      .eq("dm_id", dm.id)
       .order("created_at");
 
-    set({ dmMessages: data || [] });
-  },
+    set({ dmMessages: msgs || [] });
 
-  subscribeDM: (dm_id) => {
+    // 4. realtime subscribe
     supabase
-      .channel(`dm:${dm_id}`)
+      .channel(`dm_${dm.id}`)
       .on(
         "postgres_changes",
         {
           event: "INSERT",
           schema: "public",
           table: "dm_messages",
-          filter: `dm_id=eq.${dm_id}`,
+          filter: `dm_id=eq.${dm.id}`,
         },
         (payload) => {
-          set((state) => ({
-            dmMessages: [...state.dmMessages, payload.new as DMMessage],
-          }));
+          get().addDMMessage(payload.new as DMMessage);
         }
       )
       .subscribe();
   },
+
+  // SEND MESSAGE
+  sendDM: async (content: string, senderId: string) => {
+    const dm = get().activeDM;
+    if (!dm) return; // prevent crash
+
+    await supabase.from("dm_messages").insert({
+      dm_id: dm.id,
+      sender: senderId,
+      content,
+    });
+  },
+
+  addDMMessage: (msg) =>
+    set((state) => ({
+      dmMessages: [...state.dmMessages, msg],
+    })),
 }));

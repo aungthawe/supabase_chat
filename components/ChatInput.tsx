@@ -2,34 +2,32 @@
 
 import { useState } from "react";
 import { useChatStore } from "@/store/chatStore";
-import { sendDM } from "@/lib/dm";
+import { Profile } from "@/types/profile";
 
-export default function ChatInput() {
+export default function ChatInput({ currentUser }: { currentUser: Profile }) {
   const [text, setText] = useState("");
-  const { activeDM, currentUser } = useChatStore();
+  const { sendDM, activeDM } = useChatStore();
 
-  async function send() {
+  const handleSend = async () => {
     if (!text.trim()) return;
-    if (!activeDM || !currentUser) {
-      console.error("Missing DM room or user.");
-      return;
-    }
+    if (!activeDM) return; // prevent error
 
-    await sendDM(activeDM.id, currentUser.id, text);
-
+    await sendDM(text, currentUser.id);
     setText("");
-  }
+  };
 
   return (
-    <div className="p-3 border-t flex gap-2">
+    <div className="flex gap-2 mt-3">
       <input
         className="flex-1 border rounded p-2"
+        placeholder="Type message..."
         value={text}
         onChange={(e) => setText(e.target.value)}
+        onKeyDown={(e) => e.key === "Enter" && handleSend()}
       />
       <button
-        onClick={send}
-        className="px-4 py-2 bg-blue-500 text-white rounded"
+        onClick={handleSend}
+        className="px-4 py-2 bg-blue-600 text-white rounded"
       >
         Send
       </button>
