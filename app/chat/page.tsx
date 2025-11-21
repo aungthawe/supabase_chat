@@ -6,15 +6,20 @@ import ChatBox from "@/components/ChatBox";
 import OnlineUsers from "@/components/OnlineUser";
 import { Profile } from "@/types/profile";
 
+import { ensureProfile } from "@/lib/helper";
+
 export default function ChatPage() {
   const [currentUser, setCurrentUser] = useState<Profile>();
-  const [onlineUsers, setOnlineUsers] = useState<string[]>([]);
+  const [onlineUsers, setOnlineUsers] = useState<Profile[]>([]);
 
   // 1. Load authenticated user
   useEffect(() => {
     const loadUser = async () => {
       const { data } = await supabase.auth.getUser();
-      if (data?.user) setCurrentUser(data.user);
+      const profile = await ensureProfile();
+      if (profile) setCurrentUser(profile);
+
+      if (data?.user && data.user != null) setCurrentUser(data.user);
     };
 
     loadUser();

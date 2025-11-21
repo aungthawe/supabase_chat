@@ -1,38 +1,52 @@
 "use client";
 
 import { useChatStore } from "@/store/chatStore";
-import { Profile } from "@/types/profile";
+import type { Profile } from "@/types/profile";
 
 export default function OnlineUsers({
   currentUser,
   onlineUsers,
 }: {
-  currentUser: Profile;
-  onlineUsers: string[];
+  currentUser: Profile | null;
+  onlineUsers: Profile[];
 }) {
   const { selectUserForDM } = useChatStore();
 
   return (
     <div className="border rounded p-4 bg-white h-full">
-      <h2 className="font-semibold mb-2">Online Users</h2>
+      <h2 className="font-semibold mb-3 text-lg">Online Users</h2>
 
       {onlineUsers.length === 0 && (
         <p className="text-sm text-gray-500">No users online</p>
       )}
 
-      {onlineUsers.map((id) => {
-        if (id === currentUser?.id) return null; // Don't show self
+      <div className="space-y-2">
+        {onlineUsers.map((user) => {
+          if (!currentUser) return null;
+          if (user.id === currentUser.id) return null; // hide current user
 
-        return (
-          <button
-            key={id}
-            onClick={() => selectUserForDM(id, currentUser.id)}
-            className="block w-full text-left py-2 px-2 hover:bg-gray-100 rounded"
-          >
-            User: {id}
-          </button>
-        );
-      })}
+          return (
+            <button
+              key={user.id}
+              onClick={() => selectUserForDM(user.id, currentUser.id)}
+              className="w-full flex items-center gap-3 p-2 rounded hover:bg-gray-100 transition"
+            >
+              {/* Avatar */}
+              <img
+                src={user.avatar_url ?? "/default-avatar.png"}
+                className="w-8 h-8 rounded-full object-cover border"
+                alt={user.username ?? "avatar"}
+              />
+
+              {/* Username + Email */}
+              <div className="text-left">
+                <p className="font-medium">{user.username ?? "Unknown User"}</p>
+                <p className="text-xs text-gray-500">{user.email}</p>
+              </div>
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 }
