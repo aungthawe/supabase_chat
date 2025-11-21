@@ -1,3 +1,4 @@
+import { DMMessage, DMRoom } from "@/types/dm";
 import { supabase } from "./supabaseClient";
 
 export async function getOrCreateDM(userA: string, userB: string) {
@@ -21,7 +22,6 @@ export async function getOrCreateDM(userA: string, userB: string) {
     .single();
 
   return created;
-  
 }
 
 export async function sendDM(dm_id: number, sender: string, text: string) {

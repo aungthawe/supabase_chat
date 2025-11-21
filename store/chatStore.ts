@@ -1,8 +1,11 @@
 import { create } from "zustand";
+import { ChatStore } from "@/types/chatstore";
 import { getOrCreateDM } from "@/lib/dm";
-import { supabase } from "@lib/supabaseClient";
+import { supabase } from "@/lib/supabaseClient";
+import { Message } from "@/types/message";
 
-export const useChatStore = create((set, get) => ({
+export const useChatStore = create<ChatStore>((set, get) => ({
+  // ===== STATE =====
   currentUser: null,
 
   onlineUsers: [],
@@ -12,9 +15,15 @@ export const useChatStore = create((set, get) => ({
   selectedUser: null,
   activeDM: null,
 
-  setCurrentUser: (u) => set({ currentUser: u }),
+  // ===== ACTIONS =====
+  setCurrentUser: (user) => set({ currentUser: user }),
 
-  setOnlineUsers: (list) => set({ onlineUsers: list }),
+  setOnlineUsers: (users) => set({ onlineUsers: users }),
+
+  addMessage: (msg) =>
+    set((state) => ({
+      messages: [...state.messages, msg],
+    })),
 
   selectUserForDM: async (user) => {
     const me = get().currentUser;
@@ -22,10 +31,13 @@ export const useChatStore = create((set, get) => ({
 
     const room = await getOrCreateDM(me.id, user.id);
 
-    set({ selectedUser: user, activeDM: room });
+    set({
+      selectedUser: user,
+      activeDM: room,
+    });
 
+    await get().loadDMMessages(room.id);
     get().subscribeDM(room.id);
-    get().loadDMMessages(room.id);
   },
 
   loadDMMessages: async (dm_id) => {
@@ -50,9 +62,9 @@ export const useChatStore = create((set, get) => ({
           filter: `dm_id=eq.${dm_id}`,
         },
         (payload) => {
-          set({
-            dmMessages: [...get().dmMessages, payload.new],
-          });
+          set((state) => ({
+            dmMessages: [...state.dmMessages, payload.new as any],
+          }));
         }
       )
       .subscribe();

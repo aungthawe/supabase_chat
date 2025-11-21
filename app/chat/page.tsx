@@ -1,59 +1,112 @@
 "use client";
 
+import { useEffect } from "react";
 import { supabase } from "@/lib/supabaseClient";
+import { useChatStore } from "@/store/chatStore";
+
 import ChatBox from "@/components/ChatBox";
 import ChatInput from "@/components/ChatInput";
 import OnlineUsers from "@/components/OnlineUser";
-import { useChatStore } from "@/store/chatStore";
-import { useEffect, useState } from "react";
+import { time, timeStamp } from "console";
 
 export default function ChatPage() {
-  const { messages, addMessage } = useChatStore();
-  const [currentUsername, setCurrentUsername] = useState<string | null>(null);
+  const {
+    setCurrentUser,
+    setOnlineUsers,
+    messages,
+    addMessage,
+    activeDM,
+    dmMessages,
+  } = useChatStore();
 
+  // Load User + Online Users + Messages
   useEffect(() => {
-    let channel: ReturnType<typeof supabase.channel>;
+    let presenceChannel: ReturnType<typeof supabase.channel>;
+    let messageChannel: ReturnType<typeof supabase.channel>;
 
     const load = async () => {
-      // 1️⃣ Get current user
+      // 1️⃣ Fetch current user
       const { data: userData } = await supabase.auth.getUser();
-      setCurrentUsername(userData.user?.email ?? null);
+      if (userData.user) {
+        setCurrentUser({
+          id: userData.user.id,
+          username: userData.user.email!,
+          avatar_url: "",
+          updated_at: "",
+        });
+      }
 
-      // 2️⃣ Load initial messages
-      const { data: messagesData } = await supabase
+      // 2️⃣ Presence (Online users)
+      presenceChannel = supabase.channel("online-users", {
+        config: {
+          presence: {
+            key: userData.user?.id ?? "unknown",
+          },
+        },
+      });
+
+      presenceChannel
+        .on("presence", { event: "sync" }, () => {
+          const state = presenceChannel.presenceState();
+
+          const users = Object.keys(state).map((id) => ({
+            id,
+            username: state[id][0].username,
+            avatar_url: "",
+            updated_at: "",
+          }));
+
+          setOnlineUsers(users);
+        })
+        .subscribe();
+
+      // Announce our presence
+      presenceChannel.track({
+        username: userData.user?.email,
+        user_id: userData.user?.id,
+      });
+
+      // 3️⃣ Load group chat messages
+      const { data } = await supabase
         .from("messages")
         .select("*")
-        .order("id");
+        .order("created_at");
 
-      messagesData?.forEach(addMessage);
+      data?.forEach((msg) => addMessage(msg));
 
-      // 3️⃣ Setup realtime channel
-      channel = supabase
+      // 4️⃣ Realtime group messages
+      messageChannel = supabase
         .channel("messages")
         .on(
           "postgres_changes",
           { event: "INSERT", schema: "public", table: "messages" },
-          (payload) => addMessage(payload.new)
+          (payload) => addMessage(payload.new as any)
         )
-        .subscribe(); // ✔ Not awaited — cleanup remains sync
+        .subscribe();
     };
 
     load();
 
-    // Cleanup MUST be synchronous
     return () => {
-      if (channel) supabase.removeChannel(channel);
+      if (presenceChannel) supabase.removeChannel(presenceChannel);
+      if (messageChannel) supabase.removeChannel(messageChannel);
     };
-  }, [addMessage]);
+  }, []);
 
   return (
-    <div className="flex flex-col h-screen bg-gray-50 text-gray-900">
-      <OnlineUsers />
-      {/* Only render ChatBox when we know the username */}
-      {currentUsername && (
-        <ChatBox messages={messages} currentUsername={currentUsername} />
-      )}
-      <ChatInput />
+    <div className="h-screen grid grid-cols-[250px_1fr] bg-gray-100">
+      {/* LEFT SIDE — Online Users */}
+      <div className="border-r bg-white">
+        <OnlineUsers />
+      </div>
+
+      {/* RIGHT SIDE — DM or Group Chat */}
+      <div className="flex flex-col">
+        <ChatBox />
+
+        {/* Input changes depending on DM or Group Chat */}
+        <ChatInput />
+      </div>
     </div>
   );
 }

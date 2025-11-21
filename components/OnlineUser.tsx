@@ -10,7 +10,7 @@ export default function OnlineUsers() {
       <h2 className="font-bold mb-2">Online Users</h2>
 
       {onlineUsers
-        .filter((u) => u.id !== currentUser.id)
+        .filter((u) => u.id !== currentUser?.id)
         .map((user) => (
           <button
             key={user.id}

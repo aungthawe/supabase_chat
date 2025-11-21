@@ -10,7 +10,13 @@ export default function ChatInput() {
 
   async function send() {
     if (!text.trim()) return;
+    if (!activeDM || !currentUser) {
+      console.error("Missing DM room or user.");
+      return;
+    }
+
     await sendDM(activeDM.id, currentUser.id, text);
+
     setText("");
   }
 

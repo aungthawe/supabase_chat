@@ -1,4 +1,6 @@
-export default function MessageItem({ message, isMe }) {
+import { DMMessage } from "@/types/dm";
+
+export default function MessageItem({ message, isMe }:{message:DMMessage,isMe:boolean}) {
   return (
     <div className={`flex mb-2 ${isMe ? "justify-end" : "justify-start"}`}>
       <div

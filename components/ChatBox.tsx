@@ -12,7 +12,7 @@ export default function ChatBox() {
         <MessageItem
           key={msg.id}
           message={msg}
-          isMe={msg.sender === currentUser.id}
+          isMe={msg.sender === currentUser?.id}
         />
       ))}
     </div>
