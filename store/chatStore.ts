@@ -1,19 +1,60 @@
 import { create } from "zustand";
-import { Message } from "@/types/message";
+import { getOrCreateDM } from "@/lib/dm";
+import { supabase } from "@lib/supabaseClient";
 
-interface ChatState {
-  messages: Message[];
-  addMessage: (msg: Message) => void;
-}
+export const useChatStore = create((set, get) => ({
+  currentUser: null,
 
-export const useChatStore = create<ChatState>((set) => ({
+  onlineUsers: [],
   messages: [],
-  // addMessage: (msg) => set((state) => ({ messages: [...state.messages, msg] })),
-  addMessage: (msg) =>
-    set((state) => {
-      // if message id already exists, skip
-      if (state.messages.some((m) => m.id === msg.id)) return state;
+  dmMessages: [],
 
-      return { messages: [...state.messages, msg] };
-    }),
+  selectedUser: null,
+  activeDM: null,
+
+  setCurrentUser: (u) => set({ currentUser: u }),
+
+  setOnlineUsers: (list) => set({ onlineUsers: list }),
+
+  selectUserForDM: async (user) => {
+    const me = get().currentUser;
+    if (!me) return;
+
+    const room = await getOrCreateDM(me.id, user.id);
+
+    set({ selectedUser: user, activeDM: room });
+
+    get().subscribeDM(room.id);
+    get().loadDMMessages(room.id);
+  },
+
+  loadDMMessages: async (dm_id) => {
+    const { data } = await supabase
+      .from("dm_messages")
+      .select("*")
+      .eq("dm_id", dm_id)
+      .order("created_at");
+
+    set({ dmMessages: data || [] });
+  },
+
+  subscribeDM: (dm_id) => {
+    supabase
+      .channel(`dm:${dm_id}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "dm_messages",
+          filter: `dm_id=eq.${dm_id}`,
+        },
+        (payload) => {
+          set({
+            dmMessages: [...get().dmMessages, payload.new],
+          });
+        }
+      )
+      .subscribe();
+  },
 }));

@@ -1,10 +1,13 @@
-import { Message } from "@/types/message";
-
-export default function MessageItem({ message }: { message: Message }) {
+export default function MessageItem({ message, isMe }) {
   return (
-    <div className="p-2 border-b">
-      <p>{message.content}</p>
-      <small className="text-gray-500">{message.created_at}</small>
+    <div className={`flex mb-2 ${isMe ? "justify-end" : "justify-start"}`}>
+      <div
+        className={`px-3 py-2 rounded-xl max-w-xs ${
+          isMe ? "bg-blue-500 text-white" : "bg-gray-200"
+        }`}
+      >
+        {message.content}
+      </div>
     </div>
   );
 }

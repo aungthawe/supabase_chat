@@ -1,36 +1,25 @@
 "use client";
 
-import { supabase } from "@/lib/supabaseClient";
-import { useEffect, useState } from "react";
+import { useChatStore } from "@/store/chatStore";
 
 export default function OnlineUsers() {
-  const [users, setUsers] = useState<string[]>([]);
-
-  useEffect(() => {
-    const channel = supabase.channel("online-users", {
-      config: { presence: { key: "online-user" } },
-    });
-
-    channel
-      .on("presence", { event: "sync" }, () => {
-        const state = channel.presenceState();
-        setUsers(Object.keys(state));
-      })
-      .subscribe(async (status: string) => {
-        if (status === "SUBSCRIBED") {
-          await channel.track({ user: "active" });
-        }
-      });
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, []);
+  const { onlineUsers, selectUserForDM, currentUser } = useChatStore();
 
   return (
-    <div className="p-3 bg-white shadow flex items-center gap-2 border-b">
-      <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-      <span className="font-medium">Online Users</span>
+    <div className="p-4 border-r w-64">
+      <h2 className="font-bold mb-2">Online Users</h2>
+
+      {onlineUsers
+        .filter((u) => u.id !== currentUser.id)
+        .map((user) => (
+          <button
+            key={user.id}
+            className="w-full p-2 text-left hover:bg-gray-100 rounded"
+            onClick={() => selectUserForDM(user)}
+          >
+            {user.username}
+          </button>
+        ))}
     </div>
   );
 }

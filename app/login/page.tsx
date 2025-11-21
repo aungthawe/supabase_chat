@@ -19,7 +19,7 @@ export default function LoginPage() {
         onChange={(e) => setEmail(e.target.value)}
         placeholder="you@domain.com"
       />
-      <button onClick={handleLogin}>Send Magic Link</button>
+      <button className="bg-grey-500" onClick={handleLogin}>Send Magic Link</button>
     </div>
   );
 }
