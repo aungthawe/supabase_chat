@@ -10,9 +10,7 @@ export default function MessageItem({
   return (
     <div
       className={`max-w-[70%] p-2 rounded-xl text-sm ${
-        isMe
-          ? "bg-blue-500 text-white ml-auto"
-          : "bg-white border text-gray-800"
+        isMe ? "bg-blue-500 text-white ml-auto" : "bg-white text-gray-800"
       }`}
     >
       {message.content}

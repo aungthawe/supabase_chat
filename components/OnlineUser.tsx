@@ -13,7 +13,7 @@ export default function OnlineUsers({
   const { selectUserForDM } = useChatStore();
 
   return (
-    <div className="border rounded p-4 bg-white h-full">
+    <div className=" rounded-lg p-4 bg-white h-full">
       <h2 className="font-semibold mb-3 text-lg">Online Users</h2>
 
       {onlineUsers.length === 0 && (
@@ -29,7 +29,7 @@ export default function OnlineUsers({
             <button
               key={user.id}
               onClick={() => selectUserForDM(user.id, currentUser.id)}
-              className="w-full flex items-center gap-3 p-2 rounded hover:bg-gray-100 transition"
+              className="w-full flex items-center gap-3 p-2 rounded-xl hover:bg-blue-200 transition"
             >
               {/* Avatar */}
               <img

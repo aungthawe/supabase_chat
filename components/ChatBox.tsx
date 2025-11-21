@@ -18,7 +18,7 @@ export default function ChatBox({ currentUser }: { currentUser: Profile }) {
   if (!currentUser) return <div className="text-center p-4">Loading...</div>;
 
   return (
-    <div className="flex flex-col h-full border rounded p-4 bg-gray-50">
+    <div className="flex flex-col h-full shadow-lg rounded-xl p-4 bg-gray-50">
       {/* Messages section */}
       <div className="flex-1 overflow-y-auto space-y-2">
         {dmMessages.map((msg) => (
