@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { ChatStore } from "@/types/chatstore";
 import { getOrCreateDM } from "@/lib/dm";
 import { supabase } from "@/lib/supabaseClient";
-import { Message } from "@/types/message";
+import { DMMessage } from "@/types/dm";
 
 export const useChatStore = create<ChatStore>((set, get) => ({
   // ===== STATE =====
@@ -63,7 +63,7 @@ export const useChatStore = create<ChatStore>((set, get) => ({
         },
         (payload) => {
           set((state) => ({
-            dmMessages: [...state.dmMessages, payload.new as any],
+            dmMessages: [...state.dmMessages, payload.new as DMMessage],
           }));
         }
       )

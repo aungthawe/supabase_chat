@@ -7,7 +7,8 @@ import { useChatStore } from "@/store/chatStore";
 import ChatBox from "@/components/ChatBox";
 import ChatInput from "@/components/ChatInput";
 import OnlineUsers from "@/components/OnlineUser";
-import { time, timeStamp } from "console";
+import { DMMessage } from "@/types/dm";
+import { Message } from "@/types/message";
 
 export default function ChatPage() {
   const {
@@ -21,6 +22,9 @@ export default function ChatPage() {
 
   // Load User + Online Users + Messages
   useEffect(() => {
+    console.log("Zustand State:", useChatStore.getState());
+    console.log("activeDM:", activeDM);
+
     let presenceChannel: ReturnType<typeof supabase.channel>;
     let messageChannel: ReturnType<typeof supabase.channel>;
 
@@ -80,7 +84,10 @@ export default function ChatPage() {
         .on(
           "postgres_changes",
           { event: "INSERT", schema: "public", table: "messages" },
-          (payload) => addMessage(payload.new as any)
+          (payload) => {
+            console.log("Realtime Event:", payload);
+            addMessage(payload.new as Message);
+          }
         )
         .subscribe();
     };
@@ -95,16 +102,13 @@ export default function ChatPage() {
 
   return (
     <div className="h-screen grid grid-cols-[250px_1fr] bg-gray-100">
-      {/* LEFT SIDE — Online Users */}
       <div className="border-r bg-white">
         <OnlineUsers />
       </div>
 
-      {/* RIGHT SIDE — DM or Group Chat */}
       <div className="flex flex-col">
         <ChatBox />
 
-        {/* Input changes depending on DM or Group Chat */}
         <ChatInput />
       </div>
     </div>

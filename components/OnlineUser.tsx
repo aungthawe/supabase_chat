@@ -4,7 +4,7 @@ import { useChatStore } from "@/store/chatStore";
 
 export default function OnlineUsers() {
   const { onlineUsers, selectUserForDM, currentUser } = useChatStore();
-
+  console.log("Online users :" + onlineUsers.length);
   return (
     <div className="p-4 border-r w-64">
       <h2 className="font-bold mb-2">Online Users</h2>
