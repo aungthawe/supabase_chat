@@ -39,16 +39,26 @@ export default function ChatBox() {
 
   if (!activeDM) {
     return (
-      <div className="flex-1 flex items-center justify-center">
-        Pick a user to start DM
+      <div className="my-auto flex flex-col items-center justify-center">
+        <div>
+          <img
+            src={"/paper-plane.png"}
+            alt="paper-plane"
+            className="w-12 h-12 rounded bg-center"
+          />
+        </div>
+        <div>Pick a user to start messaging..</div>
       </div>
     );
   }
 
   return (
     <div className="flex-1 flex flex-col">
-      <div className="px-4 py-2 border-b">
-        <strong>DM #{activeDM.id}</strong>
+      <div className="px-4 py-2 ">
+        <strong>
+          Direct Message
+          <span className="badge-success mx-2">{activeDM.id}</span>
+        </strong>
       </div>
 
       <div ref={scrollerRef} className="flex-1 overflow-auto p-4">
@@ -60,7 +70,7 @@ export default function ChatBox() {
               className={`mb-3 max-w-xs ${mine ? "ml-auto text-right" : ""}`}
             >
               <div
-                className={`inline-block p-2 rounded ${
+                className={`inline-block p-2 rounded-xl ${
                   mine ? "bg-purple-500 text-white" : "bg-gray-200"
                 }`}
               >

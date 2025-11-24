@@ -39,14 +39,14 @@ export default function OnlineUsers() {
   }
 
   return (
-    <div className="p-4 w-64 border-r">
+    <div className="p-4 w-64 bg-purple-100 min-h-screen">
       <h3 className="font-bold mb-3">Users</h3>
       <ul>
         {profiles.filter((p) => p.id != currentUser?.id).map((p) => (
           <li key={p.id} className="mb-2">
             <button
               onClick={() => openDM(p)}
-              className="w-full text-left rounded p-2 hover:bg-gray-100"
+              className="w-full text-left rounded-xl p-2 bg-purple-200 hover:bg-purple-300"
             >
               <div className="flex items-center gap-3">
                 <img

@@ -36,7 +36,7 @@ export default function OnboardingPage() {
     <div className="p-4 gap-4 flex flex-col max-w-sm mx-auto">
       <h2 className="text-xl font-bold">Set up your profile</h2>
       <input
-        className="border p-2 rounded"
+        className=" p-2 rounded"
         placeholder="Your name"
         value={name}
         onChange={(e) => setName(e.target.value)}

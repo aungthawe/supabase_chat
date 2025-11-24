@@ -17,7 +17,7 @@ export default function LoginPage() {
       <h1 className="text-xl font-bold">Login</h1>
 
       <input
-        className="border p-2 rounded"
+        className="p-2 rounded"
         placeholder="email"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
