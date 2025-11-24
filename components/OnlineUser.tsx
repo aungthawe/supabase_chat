@@ -32,6 +32,7 @@ export default function OnlineUsers() {
   }, []);
 
   async function openDM(other: Profile) {
+    console.log("current use from online user list when click:"+currentUser?.id)
     if (!currentUser) return alert("Sign in first");
     const dm = await createOrGetDM(currentUser.id, other.id);
     setActiveDM(dm);
@@ -41,7 +42,7 @@ export default function OnlineUsers() {
     <div className="p-4 w-64 border-r">
       <h3 className="font-bold mb-3">Users</h3>
       <ul>
-        {profiles.map((p) => (
+        {profiles.filter((p) => p.id != currentUser?.id).map((p) => (
           <li key={p.id} className="mb-2">
             <button
               onClick={() => openDM(p)}
@@ -49,9 +50,9 @@ export default function OnlineUsers() {
             >
               <div className="flex items-center gap-3">
                 <img
-                  src={p.avatar_url || "/default-avatar.png"}
+                  src={p.avatar_url || "/user.png"}
                   alt=""
-                  className="w-8 h-8 rounded-full"
+                  className="w-10 h-10 rounded-full bg-center"
                 />
                 <div>
                   <div className="text-sm">

@@ -36,11 +36,13 @@ export async function sendDMMessage(
   content: string,
   metadata = {}
 ) {
+  console.log("senting message");
   const { data, error } = await supabase
     .from("dm_messages")
     .insert({ dm_id, sender, content, metadata })
     .select()
     .single();
+
   if (error) throw error;
   return data as DMMessage;
 }

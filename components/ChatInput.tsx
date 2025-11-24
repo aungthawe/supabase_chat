@@ -2,7 +2,8 @@
 "use client";
 import React, { useState } from "react";
 import { useUserStore } from "@/store/useStore";
-import { sendDMMessage } from "../lib/dm";
+import { sendDMMessage } from "@/lib/dm";
+import { toast } from "sonner";
 
 export default function ChatInput() {
   const activeDM = useUserStore((s) => s.activeDM);
@@ -12,12 +13,16 @@ export default function ChatInput() {
   async function send() {
     if (!activeDM || !currentUser) return;
     if (!text.trim()) return;
+    console.log(
+      "sendDMmessage from send method....." + activeDM.id,
+      currentUser.id + text
+    );
     try {
       await sendDMMessage(activeDM.id, currentUser.id, text.trim());
       setText("");
     } catch (err) {
       console.error(err);
-      alert("send failed");
+      toast.error("Send Failed, ");
     }
   }
 
@@ -36,7 +41,7 @@ export default function ChatInput() {
         />
         <button
           onClick={send}
-          className="px-4 py-2 rounded bg-purple-500 text-white"
+          className="px-4 py-2 rounded-lg bg-purple-800 text-white"
           disabled={!activeDM}
         >
           Send

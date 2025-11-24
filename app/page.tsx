@@ -10,7 +10,8 @@ import ChatUI from "@/components/ChatUi";
 
 export default function Home() {
   const { setUser, setProfile, loading, setLoading } = useAuthStore();
-  const { currentUser, setCurrentUser } = useUserStore();
+  const { setCurrentUser } = useUserStore();
+  const currentUser = useUserStore((s) => s.currentUser);
 
   useEffect(() => {
     async function init() {
@@ -33,12 +34,12 @@ export default function Home() {
         return;
       }
       setCurrentUser(profile);
+
       setProfile(profile);
       setLoading(false);
 
-
       // console.log("user of useauthstore:"+user)
-      //console.log("profile of useauthstore:" + profile);
+      console.log("current user from root  useUserstore:" + currentUser?.id);
     }
 
     init();
