@@ -1,37 +1,47 @@
+// /components/ChatInput.tsx
 "use client";
+import React, { useState } from "react";
+import { useUserStore } from "@/store/useStore";
+import { sendDMMessage } from "../lib/dm";
 
-import { useState } from "react";
-import { useChatStore } from "@/store/chatStore";
-import { Profile } from "@/types/profile";
-
-export default function ChatInput({ currentUser }: { currentUser: Profile }) {
+export default function ChatInput() {
+  const activeDM = useUserStore((s) => s.activeDM);
+  const currentUser = useUserStore((s) => s.currentUser);
   const [text, setText] = useState("");
-  const { sendDM, activeDM } = useChatStore();
 
-  const handleSend = async () => {
+  async function send() {
+    if (!activeDM || !currentUser) return;
     if (!text.trim()) return;
-    if (!activeDM) return; // prevent error
-
-    await sendDM(text, currentUser.id);
-    setText("");
-  };
+    try {
+      await sendDMMessage(activeDM.id, currentUser.id, text.trim());
+      setText("");
+    } catch (err) {
+      console.error(err);
+      alert("send failed");
+    }
+  }
 
   return (
-    <div className="flex gap-2 mt-3">
-      <input
-        className="rounded-lg bg-blue-100 p-2"
-        placeholder="Type message..."
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        onKeyDown={(e) => e.key === "Enter" && handleSend()}
-      />
-      <button
-        onMouseEnter={handleSend}
-        onClick={handleSend}
-        className="px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 duration-200 transition-color"
-      >
-        Send
-      </button>
+    <div className="p-4 border-t">
+      <div className="flex gap-2">
+        <input
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          className="flex-1 p-2 rounded border"
+          placeholder={activeDM ? "Type a message..." : "Select a conversation"}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") send();
+          }}
+          disabled={!activeDM}
+        />
+        <button
+          onClick={send}
+          className="px-4 py-2 rounded bg-purple-500 text-white"
+          disabled={!activeDM}
+        >
+          Send
+        </button>
+      </div>
     </div>
   );
 }

@@ -1,25 +1,34 @@
 "use client";
+
 import { useState } from "react";
-import { supabase } from "@lib/supabaseClient";
+import { signInWithEmailOtp } from "@/lib/auth";
+import { toast } from "sonner";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
 
   async function handleLogin() {
-    const { error } = await supabase.auth.signInWithOtp({ email });
-    if (error) return alert(error.message);
-    alert("Check your email for the magic link!");
+    await signInWithEmailOtp(email);
+    toast.success("Magic link sent!");
   }
 
   return (
-    <div style={{ padding: 20 }}>
-      <h1>Login</h1>
+    <div className="p-4 max-w-sm mx-auto flex flex-col gap-4">
+      <h1 className="text-xl font-bold">Login</h1>
+
       <input
+        className="border p-2 rounded"
+        placeholder="email"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
-        placeholder="you@domain.com"
       />
-      <button className="bg-grey-500" onClick={handleLogin}>Send Magic Link</button>
+
+      <button
+        className="bg-purple-600 text-white p-2 rounded"
+        onClick={handleLogin}
+      >
+        Send Login Link
+      </button>
     </div>
   );
 }
