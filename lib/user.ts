@@ -16,12 +16,12 @@ export const timeAgo = (timestamp: string) => {
   } else if (diffInSeconds < 86400) {
     const hours = Math.floor(diffInSeconds / 3600);
     timeString += ` ${hours} hour${hours > 1 ? "s" : ""} ago`;
-  } else {
+  } else if (diffInSeconds < (2 * 86400)) {
     const days = Math.floor(diffInSeconds / 86400);
     timeString += ` ${days} day${days > 1 ? "s" : ""} ago`;
+  } else {
+    timeString += " long time ago";
   }
 
   return `${timeString}`;
 };
-
-

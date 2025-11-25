@@ -14,6 +14,10 @@ interface State {
   setProfiles: (p: Profile[]) => void;
 
   updateProfile: (updated: Profile) => void; // realtime support
+
+  typingUsers: string[];
+  addTypingUsers: (id: string) => void;
+  removeTypingUsers: (id: string) => void;
 }
 
 export const useUserStore = create<State>((set) => ({
@@ -31,5 +35,17 @@ export const useUserStore = create<State>((set) => ({
       profiles: state.profiles.map((p) =>
         p.id === updated.id ? { ...p, ...updated } : p
       ),
+    })),
+
+  typingUsers: [],
+  addTypingUsers: (id) =>
+    set((state) => ({
+      typingUsers: state.typingUsers.includes(id)
+        ? state.typingUsers
+        : [...state.typingUsers, id],
+    })),
+  removeTypingUsers: (id) =>
+    set((state) => ({
+      typingUsers: state.typingUsers.filter((x) => x !== id),
     })),
 }));

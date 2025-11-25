@@ -70,13 +70,9 @@ export default function OnlineUsers() {
                     <div className="text-sm">
                       {p.username || p.id.slice(0, 8)}
                     </div>
+                    
                     <div className={`text-xs text-gray-500`}>
-                      {p.last_active && (
-                        <span>
-                          {timeAgo(p.last_active)}{" "}
-                          {/* Ensure last_active is a timestamp */}
-                        </span>
-                      )}
+                      {p.last_active && <span>{timeAgo(p.last_active)} </span>}
                     </div>
                   </div>
                 </div>

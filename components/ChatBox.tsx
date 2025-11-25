@@ -42,7 +42,7 @@ export default function ChatBox() {
       <div className="my-auto flex flex-col items-center justify-center">
         <div>
           <img
-            src={"/paper-plane.png"}
+            src={"/comments.png"}
             alt="paper-plane"
             className="w-12 h-12 rounded bg-center animate-pulse"
           />

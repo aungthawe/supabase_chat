@@ -36,7 +36,7 @@ export async function sendDMMessage(
   content: string,
   metadata = {}
 ) {
-  console.log("senting message");
+  
   const { data, error } = await supabase
     .from("dm_messages")
     .insert({ dm_id, sender, content, metadata })
@@ -44,6 +44,8 @@ export async function sendDMMessage(
     .single();
 
   if (error) throw error;
+
+  console.log("senting message is completed");
   return data as DMMessage;
 }
 
@@ -85,23 +87,3 @@ export function subscribeToDM(
   };
 }
 
-
-export function subscribeTyping(dmId: number, callback: (data: any) => void) {
-  const channel = supabase.channel(`dm-${dmId}-typing`);
-
-  channel.on("broadcast", { event: "typing" }, (payload) => {
-    callback(payload);
-  });
-
-  channel.subscribe();
-
-  return channel;
-}
-
-export function sendTyping(channel: any, userId: string, isTyping: boolean) {
-  channel.send({
-    type: "broadcast",
-    event: "typing",
-    payload: { userId, isTyping },
-  });
-}

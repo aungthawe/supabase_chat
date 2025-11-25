@@ -1,14 +1,39 @@
 // /components/ChatInput.tsx
 "use client";
-import React, { useState } from "react";
+import React, { act, useEffect, useState } from "react";
 import { useUserStore } from "@/store/useStore";
 import { sendDMMessage } from "@/lib/dm";
 import { toast } from "sonner";
+import { subscribeTyping, sendTyping } from "@/lib/typing";
 
 export default function ChatInput() {
   const activeDM = useUserStore((s) => s.activeDM);
   const currentUser = useUserStore((s) => s.currentUser);
+  const typingUsers = useUserStore((s) => s.typingUsers);
+  const addTypingUsers = useUserStore((s) => s.addTypingUsers);
   const [text, setText] = useState("");
+  const [channel, setChannel] = useState<any>(null);
+
+  useEffect(() => {
+    if (!activeDM) return;
+    const ch = subscribeTyping(activeDM.id);
+
+    setChannel(ch);
+
+    return () => ch.unsubscribe();
+  }, [activeDM?.id]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setText(e.target.value);
+    if (channel && currentUser) {
+      sendTyping(channel, currentUser.id, true);
+
+      //clearTimeout(typingTimeout);
+      // typingTimeout = setTimeout(() => {
+      //   sendTyping(channel, currentUser.id, false);
+      // }, 2000); // 2s after user stops typing
+    }
+  };
 
   async function send() {
     if (!activeDM || !currentUser) return;
@@ -27,11 +52,18 @@ export default function ChatInput() {
   }
 
   return (
-    <div className="p-4 -t s">
+    <div className="p-4 -t s relative">
+      {/* typing indicator */}
+      {typingUsers.length > 0 && (
+        <div className="absolute -top-5 left-2 text-xs text-gray-500 animate-pulse">
+          {typingUsers.filter((id) => id !== currentUser?.id).join(", ")} is
+          typing...
+        </div>
+      )}
       <div className="flex gap-2">
         <input
           value={text}
-          onChange={(e) => setText(e.target.value)}
+          onChange={handleChange}
           className="p-2 rounded-xl bg-purple-100 outline outline-purple-200 focus:outline-purple-300 focus:outline-2"
           placeholder={activeDM ? "Type a message..." : "Select a conversation"}
           onKeyDown={(e) => {
