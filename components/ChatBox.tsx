@@ -44,20 +44,24 @@ export default function ChatBox() {
           <img
             src={"/paper-plane.png"}
             alt="paper-plane"
-            className="w-12 h-12 rounded bg-center"
+            className="w-12 h-12 rounded bg-center animate-pulse"
           />
         </div>
-        <div>Pick a user to start messaging..</div>
+        <div className="animate-pulse text-blue-400">
+          Pick a user to start messaging..
+        </div>
       </div>
     );
   }
 
   return (
     <div className="flex-1 flex flex-col">
-      <div className="px-4 py-2 ">
-        <strong>
+      <div className="px-4 py-2 text-purple-900">
+        <strong className="text-lg">
           Direct Message
-          <span className="badge-success mx-2">{activeDM.id}</span>
+          <span className="ml-2 bg-purple-500 text-white rounded-full px-2 py-1 text-center">
+            {activeDM.id}
+          </span>
         </strong>
       </div>
 
@@ -71,7 +75,7 @@ export default function ChatBox() {
             >
               <div
                 className={`inline-block p-2 rounded-xl ${
-                  mine ? "bg-purple-500 text-white" : "bg-gray-200"
+                  mine ? "bg-purple-600 text-white" : "bg-blue-100"
                 }`}
               >
                 {m.content}

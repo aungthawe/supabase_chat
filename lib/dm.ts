@@ -84,3 +84,24 @@ export function subscribeToDM(
     supabase.removeChannel(channel);
   };
 }
+
+
+export function subscribeTyping(dmId: number, callback: (data: any) => void) {
+  const channel = supabase.channel(`dm-${dmId}-typing`);
+
+  channel.on("broadcast", { event: "typing" }, (payload) => {
+    callback(payload);
+  });
+
+  channel.subscribe();
+
+  return channel;
+}
+
+export function sendTyping(channel: any, userId: string, isTyping: boolean) {
+  channel.send({
+    type: "broadcast",
+    event: "typing",
+    payload: { userId, isTyping },
+  });
+}

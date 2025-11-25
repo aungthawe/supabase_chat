@@ -51,12 +51,12 @@ export async function touchLastActive(id: string) {
   return { data, error };
 }
 
-export async function signInWithEmail(email: string) {
-  return await supabase.auth.signInWithOtp({
-    email,
-    shouldCreateUser: true,
-  });
-}
+// export async function signInWithEmail(email: string) {
+//   return await supabase.auth.signInWithOtp({
+//     email,
+//     shouldCreateUser: true,
+//   });
+// }
 
 export async function getProfile(userId: string) {
   const { data } = await supabase

@@ -32,14 +32,18 @@ export default function ChatInput() {
         <input
           value={text}
           onChange={(e) => setText(e.target.value)}
-          className="flex-1 p-2 rounded-xl bg-purple-100"
+          className="p-2 rounded-xl bg-purple-100 outline outline-purple-200 focus:outline-purple-300 focus:outline-2"
           placeholder={activeDM ? "Type a message..." : "Select a conversation"}
           onKeyDown={(e) => {
             if (e.key === "Enter") send();
           }}
           disabled={!activeDM}
         />
-        <button onClick={send} className="text-white cursor-pointer"  disabled={!activeDM}>
+        <button
+          onClick={send}
+          className="text-white cursor-pointer"
+          disabled={!activeDM}
+        >
           <img
             src={"/send.png"}
             alt="paper-plane"
