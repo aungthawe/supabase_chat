@@ -15,6 +15,7 @@ export default function ChatBox() {
   useEffect(() => {
     let unsub: () => void;
     if (!activeDM) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setMessages([]);
       return;
     }
@@ -41,6 +42,7 @@ export default function ChatBox() {
     return (
       <div className="my-auto flex flex-col items-center justify-center">
         <div>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={"/comments.png"}
             alt="paper-plane"

@@ -1,4 +1,3 @@
-// /components/ChatInput.tsx
 "use client";
 import React, { useEffect, useState } from "react";
 import { useUserStore } from "@/store/useStore";
@@ -12,28 +11,32 @@ export default function ChatInput() {
   const typingUsers = useUserStore((s) => s.typingUsers);
 
   const [text, setText] = useState("");
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [channel, setChannel] = useState<any>(null);
 
   useEffect(() => {
     if (!activeDM) return;
     const ch = subscribeTyping(activeDM.id);
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setChannel(ch);
 
-    return () => ch.unsubscribe();
-  }, [activeDM?.id]);
+    // return () => ch.unsubscribe();
+    return () => {
+      ch.unsubscribe();
+    };
+  }, [activeDM, activeDM?.id]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let typingTimeout: any = null;
     setText(e.target.value);
     if (channel && currentUser) {
-      // user started typing
       sendTyping(channel, currentUser.id, true);
 
       // clear previous timeout
       if (typingTimeout) clearTimeout(typingTimeout);
 
-      // schedule "stop typing"
       typingTimeout = setTimeout(() => {
         sendTyping(channel, currentUser.id, false);
       }, 2000);
@@ -81,6 +84,7 @@ export default function ChatInput() {
           className="text-white cursor-pointer"
           disabled={!activeDM}
         >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={"/send.png"}
             alt="paper-plane"

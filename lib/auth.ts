@@ -14,33 +14,6 @@ export async function signOut() {
   return { error };
 }
 
-export async function getCurrentUserProfile(): Promise<Profile | null> {
-  const user = supabase.auth.getUser
-    ? (await supabase.auth.getUser()).data.user
-    : null;
-  if (!user) return null;
-  // fetch profile row
-  const { data, error } = await supabase
-    .from("profiles")
-    .select("*")
-    .eq("id", user.id)
-    .single();
-  if (error) return null;
-  return data as Profile;
-}
-
-/** Upsert a profile row (id must be user's uuid) */
-export async function upsertProfile(
-  profile: Partial<Profile> & { id: string }
-) {
-  const { data, error } = await supabase
-    .from("profiles")
-    .upsert(profile)
-    .select()
-    .single();
-  return { data, error };
-}
-
 /** keep last_active timestamp (string ISO) on the profile */
 export async function touchLastActive(id: string) {
   const now = new Date().toISOString();
@@ -74,13 +47,5 @@ export async function createProfile(id: string, username: string) {
     id,
     username,
     updated_at: new Date().toISOString(),
-  });
-}
-
-export async function createFirstProfile(id: string) {
-  console.log("creating profile with no name just id;");
-  await supabase.from("profiles").insert({
-    id,
-    updated_at: new Date().toLocaleDateString(),
   });
 }

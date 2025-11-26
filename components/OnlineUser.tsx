@@ -68,6 +68,7 @@ export default function OnlineUsers() {
                 }`}
               >
                 <div className="flex items-center gap-3">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={p.avatar_url || "/user.png"}
                     alt=""

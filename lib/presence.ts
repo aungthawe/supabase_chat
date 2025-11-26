@@ -1,4 +1,3 @@
-import { supabase } from "@lib/supabaseClient";
 import { touchLastActive } from "./auth";
 
 let interval: number | null = null;

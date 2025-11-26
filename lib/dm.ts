@@ -3,9 +3,7 @@
 import { supabase } from "./supabaseClient";
 import { DM, DMMessage } from "../types/db";
 
-/** Create or return existing DM by ensuring a deterministic pair order */
 export async function createOrGetDM(userA: string, userB: string) {
-  // ensure order so user_a < user_b for uniqueness
   const [a, b] = userA < userB ? [userA, userB] : [userB, userA];
 
   // try to find existing
@@ -29,14 +27,12 @@ export async function createOrGetDM(userA: string, userB: string) {
   return data as DM;
 }
 
-/** send DM message */
 export async function sendDMMessage(
   dm_id: number,
   sender: string,
   content: string,
   metadata = {}
 ) {
-  
   const { data, error } = await supabase
     .from("dm_messages")
     .insert({ dm_id, sender, content, metadata })
@@ -49,7 +45,6 @@ export async function sendDMMessage(
   return data as DMMessage;
 }
 
-/** fetch message history for a DM (paginated/simple) */
 export async function fetchDMMessages(dm_id: number, limit = 100) {
   const { data, error } = await supabase
     .from("dm_messages")
@@ -61,7 +56,6 @@ export async function fetchDMMessages(dm_id: number, limit = 100) {
   return data as DMMessage[];
 }
 
-/** subscribe to insert events on dm_messages for a dm_id */
 export function subscribeToDM(
   dm_id: number,
   callback: (msg: DMMessage) => void
@@ -86,4 +80,3 @@ export function subscribeToDM(
     supabase.removeChannel(channel);
   };
 }
-

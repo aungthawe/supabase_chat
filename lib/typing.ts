@@ -25,7 +25,8 @@ export function subscribeTyping(dmId: number) {
   return channel;
 }
 
-export function sendTyping(channel: any, userId: string, isTyping: boolean) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function sendTyping(channel:any, userId: string, isTyping: boolean) {
   if (!channel) return;
   console.log("sending typing:", { userId, isTyping });
   channel.send({
