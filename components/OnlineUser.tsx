@@ -52,7 +52,9 @@ export default function OnlineUsers() {
 
   return (
     <div className="p-4 w-64 bg-purple-100 min-h-screen">
-      <h3 className="font-bold mb-3">Users</h3>
+      
+  
+      <h3 className="font-bold mb-3 text-purple-900">Friends List</h3>
       <ul>
         {profiles
           .filter((p) => p.id !== currentUser?.id)

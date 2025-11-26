@@ -1,19 +1,17 @@
-// app/page.tsx
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
-import { useAuthStore } from "@/store/auth";
+
 import { useUserStore } from "@/store/useStore";
 import { getProfile } from "@/lib/auth";
 import ChatUI from "@/components/ChatUi";
 import { startPresence } from "@/lib/presence";
 
 export default function Home() {
-  const { setUser, setProfile, loading, setLoading } = useAuthStore();
-
   const setCurrentUser = useUserStore((s) => s.setCurrentUser);
   const currentUser = useUserStore((s) => s.currentUser);
+  const [loading, setLoading] = useState(false);
   useEffect(() => {
     if (currentUser?.id) startPresence(currentUser.id);
   }, [currentUser?.id]);
@@ -31,7 +29,6 @@ export default function Home() {
       console.log("session user ;" + session.user);
       const user = session.user;
 
-      setUser(user);
       const profile = await getProfile(user.id);
 
       if (!profile) {
@@ -40,15 +37,12 @@ export default function Home() {
       }
 
       setCurrentUser(profile);
-      setProfile(profile);
-      setLoading(false);
 
-      // console.log("user of useauthstore:"+user)
       console.log("current user from root  useUserstore:" + currentUser?.id);
     }
 
     init();
-  }, [currentUser?.id, setCurrentUser, setLoading, setProfile, setUser]);
+  }, [currentUser?.id, setCurrentUser, setLoading]);
 
   if (loading)
     return (

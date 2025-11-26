@@ -44,7 +44,7 @@ export default function ChatBox() {
         <div>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src={"/comments.png"}
+            src={"/love_msg.ico"}
             alt="paper-plane"
             className="w-12 h-12 rounded bg-center animate-pulse"
           />
