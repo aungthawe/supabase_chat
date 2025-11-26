@@ -22,7 +22,7 @@ export interface DMMessage {
   dm_id?: number | null;
   sender: UUID;
   content: string;
-  metadata?: Record<string, any>;
+  metadata?: string;
   created_at?: string | null;
 }
 
@@ -31,6 +31,6 @@ export interface Message {
   room_id?: number | null;
   user_id: UUID;
   content: string;
-  metadata?: Record<string, any>;
+  metadata?: string;
   created_at?: string | null;
 }

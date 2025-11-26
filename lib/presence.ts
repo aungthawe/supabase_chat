@@ -1,14 +1,14 @@
 import { supabase } from "@lib/supabaseClient";
 import { touchLastActive } from "./auth";
 
-let interval: NodeJS.Timer | null = null;
+let interval: number | null = null;
 
 export function startPresence(userId: string) {
   // update immediately
   touchLastActive(userId);
 
-  // then every 15-20s
-  interval = setInterval(() => {
+  // then every 30s
+  interval = window.setInterval(() => {
     touchLastActive(userId);
   }, 30000);
 
@@ -19,5 +19,8 @@ export function startPresence(userId: string) {
 }
 
 export function stopPresence() {
-  if (interval) clearInterval(interval);
+  if (interval !== null) {
+    clearInterval(interval);
+    interval = null;
+  }
 }

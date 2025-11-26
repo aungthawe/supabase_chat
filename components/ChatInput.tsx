@@ -1,6 +1,6 @@
 // /components/ChatInput.tsx
 "use client";
-import React, { act, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useUserStore } from "@/store/useStore";
 import { sendDMMessage } from "@/lib/dm";
 import { toast } from "sonner";
@@ -13,7 +13,6 @@ export default function ChatInput() {
 
   const [text, setText] = useState("");
   const [channel, setChannel] = useState<any>(null);
-  
 
   useEffect(() => {
     if (!activeDM) return;
@@ -37,7 +36,7 @@ export default function ChatInput() {
       // schedule "stop typing"
       typingTimeout = setTimeout(() => {
         sendTyping(channel, currentUser.id, false);
-      }, 1500);
+      }, 2000);
     }
   };
 

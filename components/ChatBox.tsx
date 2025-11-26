@@ -30,7 +30,7 @@ export default function ChatBox() {
     return () => {
       if (unsub) unsub();
     };
-  }, [activeDM?.id]);
+  }, [activeDM]);
 
   useEffect(() => {
     // scroll to bottom when messages change

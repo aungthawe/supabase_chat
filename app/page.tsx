@@ -12,13 +12,12 @@ import { startPresence } from "@/lib/presence";
 export default function Home() {
   const { setUser, setProfile, loading, setLoading } = useAuthStore();
 
-  const { setCurrentUser } = useUserStore();
+  const setCurrentUser = useUserStore((s) => s.setCurrentUser);
   const currentUser = useUserStore((s) => s.currentUser);
   useEffect(() => {
     if (currentUser?.id) startPresence(currentUser.id);
   }, [currentUser?.id]);
 
-  
   useEffect(() => {
     async function init() {
       const {

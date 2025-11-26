@@ -6,6 +6,7 @@ import { createOrGetDM } from "@/lib/dm";
 import { supabase } from "@/lib/supabaseClient";
 import { Profile } from "@/types/db";
 import { timeAgo } from "@/lib/user";
+import { toast } from "sonner";
 
 export default function OnlineUsers() {
   const currentUser = useUserStore((s) => s.currentUser);
@@ -13,6 +14,7 @@ export default function OnlineUsers() {
   const setProfiles = useUserStore((s) => s.setProfiles);
   const updateProfile = useUserStore((s) => s.updateProfile);
   const setActiveDM = useUserStore((s) => s.setActiveDM);
+  const activeDM = useUserStore((s) => s.activeDM);
 
   useEffect(() => {
     const fetchInitialProfiles = async () => {
@@ -42,7 +44,7 @@ export default function OnlineUsers() {
   }, [updateProfile]);
 
   async function openDM(other: Profile) {
-    if (!currentUser) return alert("Sign in first");
+    if (!currentUser) return toast.error("Sign in first!");
 
     const dm = await createOrGetDM(currentUser.id, other.id);
     setActiveDM(dm);
@@ -58,7 +60,12 @@ export default function OnlineUsers() {
             <li key={p.id} className="mb-2">
               <button
                 onClick={() => openDM(p)}
-                className="w-full text-left rounded-xl p-2 bg-purple-200 hover:bg-purple-300"
+                className={`w-full text-left rounded-2xl p-2 ${
+                  activeDM &&
+                  (p.id === activeDM.user_a || p.id === activeDM.user_b)
+                    ? "bg-purple-400 "
+                    : "bg-purple-200 hover:bg-purple-300"
+                }`}
               >
                 <div className="flex items-center gap-3">
                   <img
@@ -70,7 +77,7 @@ export default function OnlineUsers() {
                     <div className="text-sm">
                       {p.username || p.id.slice(0, 8)}
                     </div>
-                    
+
                     <div className={`text-xs text-gray-500`}>
                       {p.last_active && <span>{timeAgo(p.last_active)} </span>}
                     </div>
