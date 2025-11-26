@@ -5,7 +5,7 @@ export const timeAgo = (timestamp: string) => {
 
   let timeString = "active";
 
-  if (diffInSeconds < 14) {
+  if (diffInSeconds < 30) {
     // timeString = `${diffInSeconds} seconds ago`;
     timeString = `Online`;
   } else if (diffInSeconds < 60) {

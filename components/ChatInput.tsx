@@ -10,9 +10,10 @@ export default function ChatInput() {
   const activeDM = useUserStore((s) => s.activeDM);
   const currentUser = useUserStore((s) => s.currentUser);
   const typingUsers = useUserStore((s) => s.typingUsers);
-  const addTypingUsers = useUserStore((s) => s.addTypingUsers);
+
   const [text, setText] = useState("");
   const [channel, setChannel] = useState<any>(null);
+  
 
   useEffect(() => {
     if (!activeDM) return;
@@ -24,14 +25,19 @@ export default function ChatInput() {
   }, [activeDM?.id]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let typingTimeout: any = null;
     setText(e.target.value);
     if (channel && currentUser) {
+      // user started typing
       sendTyping(channel, currentUser.id, true);
 
-      //clearTimeout(typingTimeout);
-      // typingTimeout = setTimeout(() => {
-      //   sendTyping(channel, currentUser.id, false);
-      // }, 2000); // 2s after user stops typing
+      // clear previous timeout
+      if (typingTimeout) clearTimeout(typingTimeout);
+
+      // schedule "stop typing"
+      typingTimeout = setTimeout(() => {
+        sendTyping(channel, currentUser.id, false);
+      }, 1500);
     }
   };
 
@@ -55,8 +61,8 @@ export default function ChatInput() {
     <div className="p-4 -t s relative">
       {/* typing indicator */}
       {typingUsers.length > 0 && (
-        <div className="absolute -top-5 left-2 text-xs text-gray-500 animate-pulse">
-          {typingUsers.filter((id) => id !== currentUser?.id).join(", ")} is
+        <div className="absolute p-2 -top-6 left-2 text-xs text-gray-700 animate-pulse rounded-xl bg-blue-200 ">
+          {/* {typingUsers.filter((id) => id !== currentUser?.id).join(", ")} is */}
           typing...
         </div>
       )}

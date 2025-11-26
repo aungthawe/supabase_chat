@@ -18,6 +18,7 @@ interface State {
   typingUsers: string[];
   addTypingUsers: (id: string) => void;
   removeTypingUsers: (id: string) => void;
+  removeAllTypingUsers: () => void;
 }
 
 export const useUserStore = create<State>((set) => ({
@@ -48,4 +49,5 @@ export const useUserStore = create<State>((set) => ({
     set((state) => ({
       typingUsers: state.typingUsers.filter((x) => x !== id),
     })),
+  removeAllTypingUsers: () => set({ typingUsers: [] }),
 }));

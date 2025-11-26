@@ -1,21 +1,19 @@
 import { supabase } from "./supabaseClient";
 import { useUserStore } from "@/store/useStore";
-export function subscribeTyping(
-  dmId: number,
- 
-) {
+export function subscribeTyping(dmId: number) {
   const channel = supabase.channel(`dm-${dmId}-typing`);
 
   channel.on("broadcast", { event: "typing" }, (payload) => {
     console.log("received typing payload:", payload);
 
     const typingStore = useUserStore.getState();
-    const{userId,isTyping} = payload.payload;
+    const { userId, isTyping } = payload.payload;
     if (isTyping) typingStore.addTypingUsers(userId);
     else typingStore.removeTypingUsers(userId);
 
+    //typingStore.removeAllTypingUsers();
+
     console.log("AFTER:", typingStore.typingUsers);
-    
   });
 
   channel.subscribe((status) => {

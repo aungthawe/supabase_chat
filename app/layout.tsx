@@ -1,11 +1,9 @@
 import type { Metadata } from "next";
 import { Toaster } from "sonner";
-import { startPresence } from "@/lib/presence";
-import { useUserStore } from "@/store/useStore";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Chat App",
+  title: "Chat with Love",
   description: "Supabase chat app",
 };
 

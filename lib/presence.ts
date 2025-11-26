@@ -10,7 +10,7 @@ export function startPresence(userId: string) {
   // then every 15-20s
   interval = setInterval(() => {
     touchLastActive(userId);
-  }, 15000);
+  }, 30000);
 
   // update when tab becomes active
   document.addEventListener("visibilitychange", () => {
