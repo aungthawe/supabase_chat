@@ -1,36 +1,52 @@
 "use client";
 
+import { UUID } from "crypto";
 import { supabase } from "./supabaseClient";
-import { Message, Profile } from "@/types/db";
+import { Message, Profile, Room } from "@/types/db";
 
-export async function createGroup(title: string, members: Profile[]) {
+export async function createGroup(
+  title: string,
+  createdBy: string,
+  members: Profile[]
+) {
   const { data: group, error } = await supabase
     .from("rooms")
-    .insert({ title })
+    .insert({ title: title, created_by: createdBy })
     .select()
     .single();
 
   if (error) throw error;
 
   const rows = members.map((id) => ({
-    group_id: group.id,
+    room_id: group.id,
     user_id: id,
   }));
 
-  await supabase.from("group_members").insert(rows);
+  await supabase.from("room_members").insert(rows);
 
   return group;
 }
 
-export async function fetchUserGroups(userId: string) {
-  const { data } = await supabase
-    .from("group_members")
-    .select("group_chats(*)")
+export async function fetchUserGroups(userId: string): Promise<Room[]> {
+  const { data, error } = await supabase
+    .from("room_members")
+    .select("*")
     .eq("user_id", userId);
 
-  return data?.map((row) => row.group_chats) || [];
-}
+  if (error) {
+    console.error("Error fetching user groups:", error);
+    return [];
+  }
+  console.log(
+    "Fetched data for userId:_" + userId.trim(),
+    "Data length:",
+    data ? data.length : "undefined"
+  );
+  const roomIds: number[] = data ? data.map((row) => Number(row.room_id)) : [];
 
+  const rooms = await fetchFullRoomDetails(roomIds);
+  return rooms;
+}
 
 export async function sendGroupMessage(
   groupId: number,
@@ -38,7 +54,7 @@ export async function sendGroupMessage(
   content: string
 ) {
   const { data, error } = await supabase
-    .from("group_messages")
+    .from("messages")
     .insert({ group_id: groupId, sender_id: senderId, content })
     .select()
     .single();
@@ -47,7 +63,10 @@ export async function sendGroupMessage(
   return data;
 }
 
-export function subscribeGroup(groupId: number, callback: (msg: Message) => void) {
+export function subscribeGroup(
+  groupId: number,
+  callback: (msg: Message) => void
+) {
   const channel = supabase.channel(`group-${groupId}`);
 
   channel.on(
@@ -55,8 +74,8 @@ export function subscribeGroup(groupId: number, callback: (msg: Message) => void
     {
       event: "INSERT",
       schema: "public",
-      table: "group_messages",
-      filter: `group_id=eq.${groupId}`,
+      table: "messages",
+      filter: `room_id=eq.${groupId}`,
     },
     (payload) => {
       callback(payload.new as Message);
@@ -67,3 +86,8 @@ export function subscribeGroup(groupId: number, callback: (msg: Message) => void
 
   return channel;
 }
+
+const fetchFullRoomDetails = async (roomIds: number[]): Promise<Room[]> => {
+  const { data } = await supabase.from("rooms").select("*").in("id", roomIds);
+  return data || [];
+};

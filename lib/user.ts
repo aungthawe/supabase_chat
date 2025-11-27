@@ -1,3 +1,6 @@
+import { Profile } from "@/types/db";
+import { supabase } from "./supabaseClient";
+
 export const timeAgo = (timestamp: string) => {
   const now = Date.now(); // current time in milliseconds
   const lastActiveDate = new Date(timestamp).getTime(); // convert to milliseconds
@@ -16,7 +19,7 @@ export const timeAgo = (timestamp: string) => {
   } else if (diffInSeconds < 86400) {
     const hours = Math.floor(diffInSeconds / 3600);
     timeString += ` ${hours} hour${hours > 1 ? "s" : ""} ago`;
-  } else if (diffInSeconds < (2 * 86400)) {
+  } else if (diffInSeconds < 2 * 86400) {
     const days = Math.floor(diffInSeconds / 86400);
     timeString += ` ${days} day${days > 1 ? "s" : ""} ago`;
   } else {
@@ -25,3 +28,13 @@ export const timeAgo = (timestamp: string) => {
 
   return `${timeString}`;
 };
+
+export async function fetchProfiles() {
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("*")
+    .order("created_at", { ascending: true })
+    .limit(100);
+  if (error) throw error;
+  return data as Profile[];
+}

@@ -7,6 +7,8 @@ import { supabase } from "@/lib/supabaseClient";
 import { Profile } from "@/types/db";
 import { timeAgo } from "@/lib/user";
 import { toast } from "sonner";
+import GroupList from "./GroupList";
+import CreateGroupDialog from "./CreateGroupDialog";
 
 export default function OnlineUsers() {
   const currentUser = useUserStore((s) => s.currentUser);
@@ -51,45 +53,51 @@ export default function OnlineUsers() {
   }
 
   return (
-    <div className="p-4 w-64 bg-purple-100 min-h-screen">
-      
-  
+    <div className="relative p-4 w-64 bg-purple-100 min-h-screen">
+      <GroupList />
       <h3 className="font-bold mb-3 text-purple-900">Friends List</h3>
-      <ul>
-        {profiles
-          .filter((p) => p.id !== currentUser?.id)
-          .map((p) => (
-            <li key={p.id} className="mb-2">
-              <button
-                onClick={() => openDM(p)}
-                className={`w-full text-left rounded-2xl p-2 ${
-                  activeDM &&
-                  (p.id === activeDM.user_a || p.id === activeDM.user_b)
-                    ? "bg-purple-400 "
-                    : "bg-purple-200 hover:bg-purple-300"
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={p.avatar_url || "/user.png"}
-                    alt=""
-                    className="w-10 h-10 rounded-full bg-center"
-                  />
-                  <div>
-                    <div className="text-sm">
-                      {p.username || p.id.slice(0, 8)}
-                    </div>
+      <div>
+        <ul>
+          {profiles
+            .filter((p) => p.id !== currentUser?.id)
+            .map((p) => (
+              <li key={p.id} className="mb-2">
+                <button
+                  onClick={() => openDM(p)}
+                  className={`w-full text-left rounded-2xl p-2 ${
+                    activeDM &&
+                    (p.id === activeDM.user_a || p.id === activeDM.user_b)
+                      ? "bg-purple-400 "
+                      : "bg-purple-200 hover:bg-purple-300"
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={p.avatar_url || "/user.png"}
+                      alt=""
+                      className="w-10 h-10 rounded-full bg-center"
+                    />
+                    <div>
+                      <div className="text-sm">
+                        {p.username || p.id.slice(0, 8)}
+                      </div>
 
-                    <div className={`text-xs text-gray-500`}>
-                      {p.last_active && <span>{timeAgo(p.last_active)} </span>}
+                      <div className={`text-xs text-gray-500`}>
+                        {p.last_active && (
+                          <span>{timeAgo(p.last_active)} </span>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
-              </button>
-            </li>
-          ))}
-      </ul>
+                </button>
+              </li>
+            ))}
+        </ul>
+        <div className="absolute bottom-5 right-5 ">
+          <CreateGroupDialog />
+        </div>
+      </div>
     </div>
   );
 }

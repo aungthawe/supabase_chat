@@ -1,7 +1,7 @@
 "use client";
 
 import { create } from "zustand";
-import { DM, Profile } from "../types/db";
+import { DM, Profile, Room } from "../types/db";
 
 interface State {
   currentUser?: Profile | null;
@@ -18,7 +18,12 @@ interface State {
   typingUsers: string[];
   addTypingUsers: (id: string) => void;
   removeTypingUsers: (id: string) => void;
-  removeAllTypingUsers: () => void;
+
+  groupChats: Room[];
+  setGroupChats: (r: Room[]) => void;
+
+  activeGroup: Room | null;
+  setActiveGroup: (r: Room) => void;
 }
 
 export const useUserStore = create<State>((set) => ({
@@ -50,4 +55,10 @@ export const useUserStore = create<State>((set) => ({
       typingUsers: state.typingUsers.filter((x) => x !== id),
     })),
   removeAllTypingUsers: () => set({ typingUsers: [] }),
+
+  groupChats: [],
+  setGroupChats: (g) => set({ groupChats: g }),
+
+  activeGroup: null,
+  setActiveGroup: (g) => set({ activeGroup: g }),
 }));

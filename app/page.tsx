@@ -7,42 +7,71 @@ import { useUserStore } from "@/store/useStore";
 import { getProfile } from "@/lib/auth";
 import ChatUI from "@/components/ChatUi";
 import { startPresence } from "@/lib/presence";
+import { fetchUserGroups } from "@/lib/group";
 
 export default function Home() {
   const setCurrentUser = useUserStore((s) => s.setCurrentUser);
   const currentUser = useUserStore((s) => s.currentUser);
-  const [loading, setLoading] = useState(false);
-  useEffect(() => {
-    if (currentUser?.id) startPresence(currentUser.id);
-  }, [currentUser?.id]);
+  const setGroupChats = useUserStore((s) => s.setGroupChats);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function init() {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
+    if (!currentUser) return;
 
-      if (!session) {
-        window.location.href = "/login";
-        return;
+    const fetchGroups = async () => {
+      try {
+        const groups = await fetchUserGroups(currentUser.id);
+        setGroupChats(groups);
+
+        // Log group details conditionally
+        if (groups.length) {
+          console.log(
+            `Fetched ${groups.length} groups for user: ${currentUser.id}`
+          );
+        } else {
+          console.log(`No groups found for user: ${currentUser.id}`);
+        }
+      } catch (error) {
+        console.error("Error fetching groups:", error);
       }
-      console.log("session user ;" + session.user);
-      const user = session.user;
+    };
 
-      const profile = await getProfile(user.id);
+    fetchGroups();
 
-      if (!profile) {
-        window.location.href = "/onboarding";
-        return;
+    if (currentUser.id) startPresence(currentUser.id);
+  }, [currentUser, setGroupChats]);
+
+  useEffect(() => {
+    const init = async () => {
+      try {
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+
+        if (!session) {
+          window.location.href = "/login";
+          return;
+        }
+
+        console.log("Session user:", session.user);
+        const user = session.user;
+
+        const profile = await getProfile(user.id);
+        if (!profile) {
+          window.location.href = "/onboarding";
+          return;
+        }
+
+        setCurrentUser(profile);
+        setLoading(false);
+        console.log("Current user set:", profile.id);
+      } catch (error) {
+        console.error("Error during initialization:", error);
       }
-
-      setCurrentUser(profile);
-
-      console.log("current user from root  useUserstore:" + currentUser?.id);
-    }
+    };
 
     init();
-  }, [currentUser?.id, setCurrentUser, setLoading]);
+  }, [setCurrentUser]);
 
   if (loading)
     return (
