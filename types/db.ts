@@ -34,3 +34,10 @@ export interface Message {
   metadata?: string;
   created_at?: string | null;
 }
+
+export interface Room {
+  id: number;
+  title: string;
+  created_by: UUID;
+  created_at: string;
+}
