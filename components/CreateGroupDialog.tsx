@@ -56,8 +56,8 @@ export default function CreateGroupDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger>
-        <Button className="rounded-full p-3 bg-purple-600 text-white hover:bg-purple-700">
-          <Plus size={20} />
+        <Button className="rounded-fullbg-purple-600 text-white hover:bg-purple-700">
+          <Plus size={25} />
         </Button>
       </DialogTrigger>
 

@@ -5,6 +5,7 @@ import { useUserStore } from "@/store/useStore";
 export default function GroupList() {
   const groups = useUserStore((s) => s.groupChats);
   const setActiveGroup = useUserStore((s) => s.setActiveGroup);
+  const ActiveGroup = useUserStore((s) => s.activeGroup);
 
   return (
     <div>
@@ -13,9 +14,22 @@ export default function GroupList() {
         <button
           key={g.id}
           onClick={() => setActiveGroup(g)}
-          className="block w-full p-2 mb-2 rounded-xl bg-purple-200 hover:bg-purple-300"
+          className={`w-full text-left rounded-2xl p-2 ${
+            ActiveGroup && g.id === ActiveGroup.id
+              ? "bg-purple-400 "
+              : "bg-purple-200 hover:bg-purple-300"
+          }`}
         >
-          {g.title}
+          {" "}
+          <div className="flex items-center gap-3">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={"/user.png"}
+              alt=""
+              className="w-10 h-10 rounded-full bg-center"
+            />
+            {g.title}
+          </div>
         </button>
       ))}
     </div>

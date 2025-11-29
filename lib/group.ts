@@ -1,6 +1,5 @@
 "use client";
 
-import { UUID } from "crypto";
 import { supabase } from "./supabaseClient";
 import { Message, Profile, Room } from "@/types/db";
 
