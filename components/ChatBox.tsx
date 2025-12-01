@@ -44,12 +44,12 @@ export default function ChatBox() {
         <div>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src={"/love_msg.ico"}
+            src={"/love_msg.png"}
             alt="paper-plane"
             className="w-12 h-12 rounded bg-center animate-pulse"
           />
         </div>
-        <div className="animate-pulse text-blue-400">
+        <div className="animate-pulse text-purple-400">
           Pick a user to start messaging..
         </div>
       </div>

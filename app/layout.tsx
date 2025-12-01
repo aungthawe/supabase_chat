@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Toaster } from "sonner";
 import "./globals.css";
+import NavProfile from "@/components/NavProfile";
 
 export const metadata: Metadata = {
   title: "Chat with Love",
@@ -12,13 +13,14 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-
-  
   return (
     <html lang="en">
       <body>
+        <NavProfile />
+
         <Toaster position="top-center"></Toaster>
-        {children}
+
+        <main className="pt-14 min-h-[calc(100vh-4rem)]">{children}</main>
       </body>
     </html>
   );

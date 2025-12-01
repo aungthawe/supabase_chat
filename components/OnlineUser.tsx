@@ -53,7 +53,7 @@ export default function OnlineUsers() {
   }
 
   return (
-    <div className="relative p-4 w-64 bg-purple-100 min-h-screen">
+    <div className="relative p-4 w-64 bg-pink-100 min-h-225">
       <GroupList />
       <h3 className="font-bold mb-3 text-purple-900">Friends List</h3>
       <div>
@@ -76,7 +76,7 @@ export default function OnlineUsers() {
                     <img
                       src={p.avatar_url || "/user.png"}
                       alt=""
-                      className="w-10 h-10 rounded-full bg-center"
+                      className="w-8 h-8 rounded-full bg-center"
                     />
                     <div>
                       <div className="text-sm">
